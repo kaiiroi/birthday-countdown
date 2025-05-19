@@ -3,193 +3,202 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Countdown</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+  <title>Countdown Surprise</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    body {
+    * {
       margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
       font-family: 'Inter', sans-serif;
-      background-color: #fefefe;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: flex-start;
-      min-height: 100vh;
-      overflow-x: hidden;
-      padding-top: 80px;
-    }
-
-    .audio-player {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: #fff;
-      border-bottom: 1px solid #ddd;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+      background-color: #f9f9f6;
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      padding: 12px 16px;
-      z-index: 1000;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
     }
-
-    .audio-info {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .audio-info span {
-      font-size: 14px;
-      font-weight: 500;
-    }
-
-    .controls {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .controls button {
-      background: none;
-      border: none;
-      font-size: 18px;
-      cursor: pointer;
-      color: #000;
-    }
-
-    .countdown-container {
+    .container {
       text-align: center;
       padding: 2rem;
-      background: white;
+      border: 2px solid white;
       border-radius: 12px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      margin-top: 40px;
+      background: #fff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
-
     .countdown {
       font-size: 2rem;
-      margin-top: 1rem;
-      color: #555;
+      margin: 1rem 0;
+      color: #333;
     }
-
-    #letter {
+    .message-page {
       display: none;
-      margin-top: 2rem;
-      max-width: 600px;
-      background: #f1f1f1;
-      padding: 1.5rem;
-      border-radius: 10px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-      text-align: left;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: linear-gradient(to right, #fdf0f0, #fff6f6);
+      overflow-y: auto;
+      padding: 3rem 1rem;
     }
-
-    #letter p {
+    .message-content {
+      max-width: 600px;
+      margin: 0 auto;
+      font-size: 1.1rem;
+      color: #333;
       line-height: 1.6;
+      white-space: pre-wrap;
+    }
+    .heart {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: pink;
+      transform: rotate(45deg);
+      animation: float 4s linear infinite;
+    }
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: pink;
+      border-radius: 50%;
+    }
+    .heart::before {
+      top: -10px;
+      left: 0;
+    }
+    .heart::after {
+      top: 0;
+      left: -10px;
+    }
+    @keyframes float {
+      0% { transform: translateY(0) rotate(45deg); opacity: 1; }
+      100% { transform: translateY(-200px) rotate(45deg); opacity: 0; }
+    }
+    /* Mini player style */
+    .miniplayer {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 0.5rem;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    .miniplayer audio {
+      width: 200px;
+      outline: none;
     }
   </style>
 </head>
 <body>
-  <div class="audio-player">
-    <div class="audio-info">
-      <audio id="audio" autoplay>
-        <source src="https://drive.google.com/uc?export=download&id=1jUm2k8kPZmS77O08ILRExcWBT2t_yNNE" type="audio/mpeg">
-        Your browser does not support the audio element.
-      </audio>
-      <span>Now Playing</span>
-    </div>
-    <div class="controls">
-      <button id="backward">⏪</button>
-      <button id="play-pause">⏸️</button>
-      <button id="forward">⏩</button>
-    </div>
+  <!-- Music Player -->
+  <div class="miniplayer">
+    <audio autoplay controls>
+      <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
   </div>
 
-  <div class="countdown-container" id="countdown-container">
-    <h1>You can't open this until July 24</h1>
+  <div class="container" id="countdown-page">
+    <h2>You can't open this until July 24</h2>
     <div class="countdown" id="countdown"></div>
   </div>
 
-  <div id="letter">
-    <h2>💌 Your Letter</h2>
-    <p>
-      Dear Future Me,<br><br>
-      (Write your letter here! This message will be visible after the countdown or by entering the dev access.)
-    </p>
+  <div class="message-page" id="message-page">
+    <div class="message-content" id="typed-text"></div>
   </div>
 
   <script>
-    const audio = document.getElementById('audio');
-    const playPauseBtn = document.getElementById('play-pause');
-    const forwardBtn = document.getElementById('forward');
-    const backwardBtn = document.getElementById('backward');
+    const targetDate = new Date('2025-07-24T00:00:00'); // Updated to July 24
     const countdownEl = document.getElementById('countdown');
-    const countdownContainer = document.getElementById('countdown-container');
-    const letter = document.getElementById('letter');
+    const countdownPage = document.getElementById('countdown-page');
+    const messagePage = document.getElementById('message-page');
+    const typedTextEl = document.getElementById('typed-text');
 
-    window.addEventListener('DOMContentLoaded', () => {
-      audio.play().catch(() => {
-        playPauseBtn.textContent = '▶️';
-      });
-    });
+    function updateCountdown() {
+      const now = new Date();
+      const diff = targetDate - now;
 
-    playPauseBtn.addEventListener('click', () => {
-      if (audio.paused) {
-        audio.play();
-        playPauseBtn.textContent = '⏸️';
-      } else {
-        audio.pause();
-        playPauseBtn.textContent = '▶️';
-      }
-    });
-
-    forwardBtn.addEventListener('click', () => {
-      audio.currentTime += 10;
-    });
-
-    backwardBtn.addEventListener('click', () => {
-      audio.currentTime -= 10;
-    });
-
-    const targetDate = new Date('July 24, 2025 00:00:00').getTime();
-
-    const updateCountdown = () => {
-      const now = new Date().getTime();
-      const distance = targetDate - now;
-
-      if (distance < 0) {
-        countdownEl.innerHTML = '🎉 It\'s time!';
-        countdownContainer.style.display = 'none';
-        letter.style.display = 'block';
+      if (diff <= 0) {
+        showMessage();
+        clearInterval(timer);
         return;
       }
 
-      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / 1000 / 60) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
 
-      countdownEl.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    };
+      countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
 
-    updateCountdown();
-    setInterval(updateCountdown, 1000);
+    function showMessage() {
+      countdownPage.style.display = 'none';
+      messagePage.style.display = 'block';
+      typeMessage();
+      releaseHearts();
+    }
 
-    // Dev Access – press ~ and type 'devpass' then Enter
-    let devInput = '';
-    window.addEventListener('keydown', (e) => {
-      if (e.key === '`') {
-        devInput = '';
-      } else if (e.key === 'Enter') {
-        if (devInput === 'devpass') {
-          countdownContainer.style.display = 'none';
-          letter.style.display = 'block';
-        }
-      } else {
-        devInput += e.key;
+    const message = `I never thought I’d write this down, let alone say it out loud. But the truth has been sitting heavy on my chest for far too long, and maybe—just maybe—putting it into words will finally set me free.
+
+I have a confession.
+
+I’ve been pretending. Pretending that I’m okay, that everything is fine, that nothing affects me. I laugh at the right times, I nod when I’m supposed to, and I even throw in a joke or two to keep people from asking what’s really going on. But behind that smile is a storm I haven’t dared to share.
+
+The truth is, I’m tired. Not just physically, but emotionally. I carry the weight of expectations, memories, regrets—and worst of all, silence. I’ve pushed people away because I was too scared they’d see through the act. Too scared they’d see the real me. But what scares me more now is the thought of going on like this—unseen, unheard, and misunderstood.
+
+This is not a cry for help. This is not an excuse. This is a confession—a moment of honesty in a world where we’re taught to hide our cracks. So here it is: I’m not perfect. I mess up. I feel lost. I overthink. I care too much sometimes. And yes, I’ve been afraid to admit any of it.
+
+But not anymore.
+
+Maybe this essay won’t change anything. Maybe it’ll just be a piece of paper in someone’s hands, tossed aside after a scene or two. But for me, writing it is a first step. A small crack in the mask. And sometimes, that’s all it takes to let a little light in.`;
+
+    let charIndex = 0;
+    function typeMessage() {
+      if (charIndex < message.length) {
+        typedTextEl.innerText += message.charAt(charIndex);
+        charIndex++;
+        setTimeout(typeMessage, 30);
       }
-    });
+    }
+
+    function releaseHearts() {
+      setInterval(() => {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.top = '100vh';
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 4000);
+      }, 300);
+    }
+
+    const timer = setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // Dev Access Button
+    const testBtn = document.createElement('button');
+    testBtn.innerText = 'See Message (Dev Only)';
+    testBtn.style.position = 'absolute';
+    testBtn.style.bottom = '20px';
+    testBtn.style.right = '20px';
+    testBtn.style.padding = '0.5rem 1rem';
+    testBtn.style.background = '#eee';
+    testBtn.style.border = 'none';
+    testBtn.style.cursor = 'pointer';
+    testBtn.onclick = showMessage;
+    document.body.appendChild(testBtn);
   </script>
 </body>
 </html>
