@@ -3,177 +3,120 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Countdown Surprise</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <title>Countdown</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
     body {
+      margin: 0;
       font-family: 'Inter', sans-serif;
-      background-color: #f9f9f6; /* Off white */
+      background-color: #fefefe;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .audio-player {
+      position: fixed;
+      top: 0;
+      width: 100%;
+      background-color: #f7e7ec;
       display: flex;
       align-items: center;
       justify-content: center;
-      height: 100vh;
-      overflow: hidden;
+      padding: 0.75rem 0;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
     }
-    .container {
+
+    .controls button {
+      background: none;
+      border: none;
+      font-size: 20px;
+      margin: 0 8px;
+      cursor: pointer;
+      color: #222;
+    }
+
+    .countdown-container {
       text-align: center;
       padding: 2rem;
-      border: 2px solid white;
+      background: white;
       border-radius: 12px;
-      background: #fff;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      margin-top: 100px;
     }
+
     .countdown {
       font-size: 2rem;
-      margin: 1rem 0;
-      color: #333;
-    }
-    .message-page {
-      display: none;
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: linear-gradient(to right, #fdf0f0, #fff6f6);
-      overflow-y: auto;
-      padding: 3rem 1rem;
-    }
-    .message-content {
-      max-width: 600px;
-      margin: 0 auto;
-      font-size: 1.1rem;
-      color: #333;
-      line-height: 1.6;
-      white-space: pre-wrap;
-    }
-    .heart {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background: pink;
-      transform: rotate(45deg);
-      animation: float 4s linear infinite;
-    }
-    .heart::before,
-    .heart::after {
-      content: "";
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background: pink;
-      border-radius: 50%;
-    }
-    .heart::before {
-      top: -10px;
-      left: 0;
-    }
-    .heart::after {
-      top: 0;
-      left: -10px;
-    }
-    @keyframes float {
-      0% { transform: translateY(0) rotate(45deg); opacity: 1; }
-      100% { transform: translateY(-200px) rotate(45deg); opacity: 0; }
+      margin-top: 1rem;
+      color: #555;
     }
   </style>
 </head>
 <body>
-  <div class="container" id="countdown-page">
-    <h2>You can't open this until June 24</h2>
+  <div class="audio-player">
+    <audio id="audio" src=https://drive.google.com/file/d/1jUm2k8kPZmS77O08ILRExcWBT2t_yNNE/view?usp=drive_link></audio>
+    <div class="controls">
+      <button id="backward">⏪</button>
+      <button id="play-pause">▶️</button>
+      <button id="forward">⏩</button>
+    </div>
+  </div>
+
+  <div class="countdown-container">
+    <h1>You can't open this until June 24</h1>
     <div class="countdown" id="countdown"></div>
   </div>
 
-  <div class="message-page" id="message-page">
-    <div class="message-content" id="typed-text"></div>
-  </div>
-
   <script>
-    const targetDate = new Date('2025-06-24T00:00:00');
-    const countdownEl = document.getElementById('countdown');
-    const countdownPage = document.getElementById('countdown-page');
-    const messagePage = document.getElementById('message-page');
-    const typedTextEl = document.getElementById('typed-text');
+    const audio = document.getElementById('audio');
+    const playPauseBtn = document.getElementById('play-pause');
+    const forwardBtn = document.getElementById('forward');
+    const backwardBtn = document.getElementById('backward');
 
-    function updateCountdown() {
-      const now = new Date();
-      const diff = targetDate - now;
+    playPauseBtn.addEventListener('click', () => {
+      if (audio.paused) {
+        audio.play();
+        playPauseBtn.textContent = '⏸️';
+      } else {
+        audio.pause();
+        playPauseBtn.textContent = '▶️';
+      }
+    });
 
-      if (diff <= 0) {
-        showMessage();
-        clearInterval(timer);
+    forwardBtn.addEventListener('click', () => {
+      audio.currentTime += 10;
+    });
+
+    backwardBtn.addEventListener('click', () => {
+      audio.currentTime -= 10;
+    });
+
+    const countdown = document.getElementById('countdown');
+    const targetDate = new Date('June 24, 2025 00:00:00').getTime();
+
+    const updateCountdown = () => {
+      const now = new Date().getTime();
+      const distance = targetDate - now;
+
+      if (distance < 0) {
+        countdown.innerHTML = '🎉 It's time!';
         return;
       }
 
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / 1000 / 60) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
+      const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-      countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
-    }
+      countdown.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    };
 
-    function showMessage() {
-      countdownPage.style.display = 'none';
-      messagePage.style.display = 'block';
-      typeMessage();
-      releaseHearts();
-    }
-
-    const message = `I never thought I’d write this down, let alone say it out loud. But the truth has been sitting heavy on my chest for far too long, and maybe—just maybe—putting it into words will finally set me free.
-
-I have a confession.
-
-I’ve been pretending. Pretending that I’m okay, that everything is fine, that nothing affects me. I laugh at the right times, I nod when I’m supposed to, and I even throw in a joke or two to keep people from asking what’s really going on. But behind that smile is a storm I haven’t dared to share.
-
-The truth is, I’m tired. Not just physically, but emotionally. I carry the weight of expectations, memories, regrets—and worst of all, silence. I’ve pushed people away because I was too scared they’d see through the act. Too scared they’d see the real me. But what scares me more now is the thought of going on like this—unseen, unheard, and misunderstood.
-
-This is not a cry for help. This is not an excuse. This is a confession—a moment of honesty in a world where we’re taught to hide our cracks. So here it is: I’m not perfect. I mess up. I feel lost. I overthink. I care too much sometimes. And yes, I’ve been afraid to admit any of it.
-
-But not anymore.
-
-Maybe this essay won’t change anything. Maybe it’ll just be a piece of paper in someone’s hands, tossed aside after a scene or two. But for me, writing it is a first step. A small crack in the mask. And sometimes, that’s all it takes to let a little light in.`;
-
-    let charIndex = 0;
-    function typeMessage() {
-      if (charIndex < message.length) {
-        typedTextEl.innerText += message.charAt(charIndex);
-        charIndex++;
-        setTimeout(typeMessage, 30);
-      }
-    }
-
-    function releaseHearts() {
-      setInterval(() => {
-        const heart = document.createElement('div');
-        heart.classList.add('heart');
-        heart.style.left = Math.random() * 100 + 'vw';
-        heart.style.top = '100vh';
-        document.body.appendChild(heart);
-        setTimeout(() => heart.remove(), 4000);
-      }, 300);
-    }
-
-    const timer = setInterval(updateCountdown, 1000);
     updateCountdown();
-
-    // TEMPORARY ACCESS BUTTON FOR YOU (REMOVE BEFORE SENDING)
-    const testBtn = document.createElement('button');
-    testBtn.innerText = 'See Message (Dev Only)';
-    testBtn.style.position = 'absolute';
-    testBtn.style.bottom = '20px';
-    testBtn.style.right = '20px';
-    testBtn.style.padding = '0.5rem 1rem';
-    testBtn.style.background = '#eee';
-    testBtn.style.border = 'none';
-    testBtn.style.cursor = 'pointer';
-    testBtn.onclick = showMessage;
-    document.body.appendChild(testBtn);
+    setInterval(updateCountdown, 1000);
   </script>
 </body>
 </html>
