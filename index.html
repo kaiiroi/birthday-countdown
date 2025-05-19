@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Birthday Countdown</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f8f9fa;
+      transition: background-color 1s;
+    }
+
+    .container {
+      text-align: center;
+      padding: 2rem;
+      border-radius: 12px;
+      background: white;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      transition: all 0.5s ease;
+    }
+
+    .countdown {
+      font-size: 2rem;
+      margin: 1rem 0;
+      color: #555;
+    }
+
+    .message {
+      display: none;
+    }
+
+    .revealed {
+      background: linear-gradient(135deg, #ffd6e0, #ffe9ec);
+    }
+
+    .revealed .countdown-section {
+      display: none;
+    }
+
+    .revealed .message {
+      display: block;
+      font-size: 1.5rem;
+      color: #333;
+      animation: fadeIn 2s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <div class="countdown-section">
+      <h1>You can't open this until June 24</h1>
+      <div class="countdown" id="countdown"></div>
+    </div>
+    <div class="message" id="message">
+      <h2>🎉 Happy Birthday! 🎉</h2>
+      <p>This message was unlocked just for you at midnight 💖</p>
+      <p>[Insert your letter here]</p>
+    </div>
+  </div>
+
+  <script>
+    const countdownEl = document.getElementById('countdown');
+    const container = document.getElementById('container');
+    const message = document.getElementById('message');
+
+    const targetDate = new Date('2025-06-24T00:00:00');
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = targetDate - now;
+
+      if (diff <= 0) {
+        container.classList.add('revealed');
+        countdownEl.textContent = '';
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+    }
+
+    updateCountdown();
+    setInterval(updateCountdown, 1000);
+  </script>
+</body>
+</html>
