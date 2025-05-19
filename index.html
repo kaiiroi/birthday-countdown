@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Countdown</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
@@ -13,31 +13,50 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
       min-height: 100vh;
       overflow-x: hidden;
+      padding-top: 80px;
     }
 
     .audio-player {
       position: fixed;
       top: 0;
+      left: 0;
       width: 100%;
-      background-color: #f7e7ec;
+      background: #fff;
+      border-bottom: 1px solid #ddd;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
       display: flex;
       align-items: center;
-      justify-content: center;
-      padding: 0.75rem 0;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      justify-content: space-between;
+      padding: 12px 16px;
       z-index: 1000;
+    }
+
+    .audio-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .audio-info span {
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
     }
 
     .controls button {
       background: none;
       border: none;
-      font-size: 20px;
-      margin: 0 8px;
+      font-size: 18px;
       cursor: pointer;
-      color: #222;
+      color: #000;
     }
 
     .countdown-container {
@@ -46,7 +65,7 @@
       background: white;
       border-radius: 12px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-      margin-top: 100px;
+      margin-top: 40px;
     }
 
     .countdown {
@@ -54,14 +73,32 @@
       margin-top: 1rem;
       color: #555;
     }
+
+    #letter {
+      display: none;
+      margin-top: 2rem;
+      max-width: 600px;
+      background: #f1f1f1;
+      padding: 1.5rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+      text-align: left;
+    }
+
+    #letter p {
+      line-height: 1.6;
+    }
   </style>
 </head>
 <body>
   <div class="audio-player">
-    <audio id="audio" autoplay>
-      <source src="https://drive.google.com/uc?export=download&id=1jUm2k8kPZmS77O08ILRExcWBT2t_yNNE" type="audio/mpeg">
-      Your browser does not support the audio element.
-    </audio>
+    <div class="audio-info">
+      <audio id="audio" autoplay>
+        <source src="https://drive.google.com/uc?export=download&id=1jUm2k8kPZmS77O08ILRExcWBT2t_yNNE" type="audio/mpeg">
+        Your browser does not support the audio element.
+      </audio>
+      <span>Now Playing</span>
+    </div>
     <div class="controls">
       <button id="backward">⏪</button>
       <button id="play-pause">⏸️</button>
@@ -69,9 +106,17 @@
     </div>
   </div>
 
-  <div class="countdown-container">
+  <div class="countdown-container" id="countdown-container">
     <h1>You can't open this until July 24</h1>
     <div class="countdown" id="countdown"></div>
+  </div>
+
+  <div id="letter">
+    <h2>💌 Your Letter</h2>
+    <p>
+      Dear Future Me,<br><br>
+      (Write your letter here! This message will be visible after the countdown or by entering the dev access.)
+    </p>
   </div>
 
   <script>
@@ -79,11 +124,12 @@
     const playPauseBtn = document.getElementById('play-pause');
     const forwardBtn = document.getElementById('forward');
     const backwardBtn = document.getElementById('backward');
+    const countdownEl = document.getElementById('countdown');
+    const countdownContainer = document.getElementById('countdown-container');
+    const letter = document.getElementById('letter');
 
-    // Attempt to autoplay (needed for some browsers)
     window.addEventListener('DOMContentLoaded', () => {
       audio.play().catch(() => {
-        // Autoplay might be blocked, fallback to manual play
         playPauseBtn.textContent = '▶️';
       });
     });
@@ -106,7 +152,6 @@
       audio.currentTime -= 10;
     });
 
-    const countdown = document.getElementById('countdown');
     const targetDate = new Date('July 24, 2025 00:00:00').getTime();
 
     const updateCountdown = () => {
@@ -114,7 +159,9 @@
       const distance = targetDate - now;
 
       if (distance < 0) {
-        countdown.innerHTML = '🎉 It\'s time!';
+        countdownEl.innerHTML = '🎉 It\'s time!';
+        countdownContainer.style.display = 'none';
+        letter.style.display = 'block';
         return;
       }
 
@@ -123,11 +170,26 @@
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-      countdown.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+      countdownEl.innerHTML = `${days}d ${hours}h ${minutes}m ${seconds}s`;
     };
 
     updateCountdown();
     setInterval(updateCountdown, 1000);
+
+    // Dev Access – press ~ and type 'devpass' then Enter
+    let devInput = '';
+    window.addEventListener('keydown', (e) => {
+      if (e.key === '`') {
+        devInput = '';
+      } else if (e.key === 'Enter') {
+        if (devInput === 'devpass') {
+          countdownContainer.style.display = 'none';
+          letter.style.display = 'block';
+        }
+      } else {
+        devInput += e.key;
+      }
+    });
   </script>
 </body>
 </html>
