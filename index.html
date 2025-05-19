@@ -1,5 +1,4 @@
-<!D
-OCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -59,16 +58,19 @@ OCTYPE html>
 </head>
 <body>
   <div class="audio-player">
-    <audio id="audio" src=https://drive.google.com/file/d/1jUm2k8kPZmS77O08ILRExcWBT2t_yNNE/view?usp=drive_link></audio>
+    <audio id="audio" autoplay>
+      <source src="https://drive.google.com/uc?export=download&id=1jUm2k8kPZmS77O08ILRExcWBT2t_yNNE" type="audio/mpeg">
+      Your browser does not support the audio element.
+    </audio>
     <div class="controls">
       <button id="backward">⏪</button>
-      <button id="play-pause">▶️</button>
+      <button id="play-pause">⏸️</button>
       <button id="forward">⏩</button>
     </div>
   </div>
 
   <div class="countdown-container">
-    <h1>You can't open this until June 24</h1>
+    <h1>You can't open this until July 24</h1>
     <div class="countdown" id="countdown"></div>
   </div>
 
@@ -77,6 +79,14 @@ OCTYPE html>
     const playPauseBtn = document.getElementById('play-pause');
     const forwardBtn = document.getElementById('forward');
     const backwardBtn = document.getElementById('backward');
+
+    // Attempt to autoplay (needed for some browsers)
+    window.addEventListener('DOMContentLoaded', () => {
+      audio.play().catch(() => {
+        // Autoplay might be blocked, fallback to manual play
+        playPauseBtn.textContent = '▶️';
+      });
+    });
 
     playPauseBtn.addEventListener('click', () => {
       if (audio.paused) {
@@ -97,14 +107,14 @@ OCTYPE html>
     });
 
     const countdown = document.getElementById('countdown');
-    const targetDate = new Date('June 24, 2025 00:00:00').getTime();
+    const targetDate = new Date('July 24, 2025 00:00:00').getTime();
 
     const updateCountdown = () => {
       const now = new Date().getTime();
       const distance = targetDate - now;
 
       if (distance < 0) {
-        countdown.innerHTML = '🎉 It's time!';
+        countdown.innerHTML = '🎉 It\'s time!';
         return;
       }
 
