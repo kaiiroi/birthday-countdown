@@ -2,18 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Birthday Countdown</title>
   <style>
     body {
-      margin: 0;
       font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      display: flex;
-      justify-content: center;
-      align-items: center;
+      background: #333;
+      color: #222;
+      margin: 0;
       height: 100vh;
-      background-color: #f8f9fa;
-      transition: background-color 1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      transition: background 1s ease;
     }
 
     .container {
@@ -23,6 +25,8 @@
       background: white;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
       transition: all 0.5s ease;
+      max-width: 500px;
+      width: 90%;
     }
 
     .countdown {
@@ -33,69 +37,120 @@
 
     .message {
       display: none;
+      text-align: left;
+      font-size: 1.1rem;
+      color: #222;
+      margin-top: 20px;
     }
 
-    .revealed {
-      background: linear-gradient(135deg, #ffd6e0, #ffe9ec);
+    /* Dev button styles */
+    #devJump {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: #888;
+      color: white;
+      padding: 10px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      z-index: 9999;
     }
 
-    .revealed .countdown-section {
+    /* The "Read Message" button (will be shown after countdown) */
+    #readMessageBtn {
       display: none;
+      margin-top: 1.5rem;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background: #f6d365;
+      background: linear-gradient(120deg, #f6d365 0%, #fda085 100%);
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      color: white;
+      box-shadow: 0 4px 8px rgba(253, 160, 133, 0.6);
+      transition: all 0.3s ease;
     }
 
-    .revealed .message {
-      display: block;
-      font-size: 1.5rem;
-      color: #333;
-      animation: fadeIn 2s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
+    #readMessageBtn:hover {
+      box-shadow: 0 6px 12px rgba(253, 160, 133, 0.9);
+      transform: translateY(-2px);
     }
   </style>
 </head>
 <body>
-  <div class="container" id="container">
-    <div class="countdown-section">
-      <h1>You can't open this until June 24</h1>
-      <div class="countdown" id="countdown"></div>
-    </div>
-    <div class="message" id="message">
-      <h2>🎉 Happy Birthday! 🎉</h2>
-      <p>This message was unlocked just for you at midnight 💖</p>
-      <p>[Insert your letter here]</p>
-    </div>
+  <button id="devJump">Dev: View Message 💻</button>
+
+  <div class="container" id="countdownCard">
+    <h1>🎉 Birthday Countdown 🎉</h1>
+    <p class="countdown" id="countdown">Loading...</p>
+    <p>You can't open this until June 24</p>
+    <button id="readMessageBtn">Read Message 💌</button>
+  </div>
+
+  <div class="container message" id="messageSection">
+    <h1>Happy Birthday! 🥳</h1>
+    <p>
+      This is your special message.<br/>
+      I hope you enjoy it!<br/><br/>
+      <!-- Your real confession/message goes here -->
+      I'm so glad to have you in my life, and I can't wait to celebrate you properly soon.
+    </p>
   </div>
 
   <script>
-    const countdownEl = document.getElementById('countdown');
-    const container = document.getElementById('container');
-    const message = document.getElementById('message');
+    // Set birthday target date/time (June 24 at midnight)
+    const targetDate = new Date();
+    targetDate.setMonth(5); // June is month 5 (0-based)
+    targetDate.setDate(24);
+    targetDate.setHours(0, 0, 0, 0);
 
-    const targetDate = new Date('2025-06-24T00:00:00');
+    const countdownEl = document.getElementById('countdown');
+    const readMessageBtn = document.getElementById('readMessageBtn');
+    const countdownCard = document.getElementById('countdownCard');
+    const messageSection = document.getElementById('messageSection');
+    const devJumpBtn = document.getElementById('devJump');
 
     function updateCountdown() {
       const now = new Date();
       const diff = targetDate - now;
 
       if (diff <= 0) {
-        container.classList.add('revealed');
-        countdownEl.textContent = '';
-        return;
+        // Countdown ended
+        countdownEl.textContent = "It's your birthday! 🎉";
+        readMessageBtn.style.display = "inline-block";
+        clearInterval(interval);
+      } else {
+        // Calculate time
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
       }
-
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / (1000 * 60)) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
-
-      countdownEl.textContent = `${days}d ${hours}h ${minutes}m ${seconds}s`;
     }
 
+    // Start countdown updates every 1 second
+    const interval = setInterval(updateCountdown, 1000);
     updateCountdown();
-    setInterval(updateCountdown, 1000);
+
+    // When "Read Message" button clicked after countdown
+    readMessageBtn.addEventListener('click', () => {
+      document.body.style.background = 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)';
+      countdownCard.style.display = 'none';
+      messageSection.style.display = 'block';
+    });
+
+    // Dev button to jump to message immediately
+    devJumpBtn.addEventListener('click', () => {
+      document.body.style.background = 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)';
+      countdownCard.style.display = 'none';
+      messageSection.style.display = 'block';
+    });
   </script>
 </body>
 </html>
+
