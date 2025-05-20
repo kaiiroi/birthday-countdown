@@ -1,4 +1,3 @@
-<!-- FULL UPDATED HTML -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,7 +6,11 @@
   <title>Countdown Surprise</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
     body {
       font-family: 'Inter', sans-serif;
       background-color: #f9f9f6;
@@ -34,15 +37,18 @@
     .message-page {
       display: none;
       position: absolute;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      background: linear-gradient(to bottom right, #fff0f0, #ffe5e5);
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
       overflow-y: auto;
       padding: 6rem 1rem 3rem 1rem;
+      background: #ffffff;
+      transition: background 10s ease;
     }
     .message-content {
       max-width: 600px;
-      margin: 100px auto 0 auto;
+      margin: 0 auto;
       font-size: 1.1rem;
       color: #333;
       line-height: 1.6;
@@ -59,7 +65,8 @@
       animation: float 4s linear infinite;
       z-index: 5;
     }
-    .heart::before, .heart::after {
+    .heart::before,
+    .heart::after {
       content: "";
       position: absolute;
       width: 20px;
@@ -67,8 +74,14 @@
       background: pink;
       border-radius: 50%;
     }
-    .heart::before { top: -10px; left: 0; }
-    .heart::after { top: 0; left: -10px; }
+    .heart::before {
+      top: -10px;
+      left: 0;
+    }
+    .heart::after {
+      top: 0;
+      left: -10px;
+    }
     @keyframes float {
       0% { transform: translateY(0) rotate(45deg); opacity: 1; }
       100% { transform: translateY(-200px) rotate(45deg); opacity: 0; }
@@ -107,14 +120,11 @@
       font-size: 0.9rem;
       color: #666;
     }
-    audio { display: none; }
-    canvas#confetti-canvas {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100vw; height: 100vh;
-      pointer-events: none;
-      z-index: 2;
-      display: none;
+    .play-btn {
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: 1.2rem;
     }
   </style>
 </head>
@@ -126,17 +136,15 @@
   </div>
 
   <div class="message-page" id="message-page">
-    <canvas id="confetti-canvas"></canvas>
-
     <div class="music-player">
-      <img src="https://i.scdn.co/image/ab67616d00001e0242b91ddcbf72ebc68f7e390c" alt="Song Cover">
+      <img id="cover-img" src="https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228" alt="Song Cover">
       <div class="track-info">
-        <div class="track-title">LOVE.</div>
-        <div class="track-artist">Kendrick Lamar</div>
+        <div class="track-title">Beautiful in White</div>
+        <div class="track-artist">Shane Filan</div>
       </div>
-      <button id="toggle-music" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">⏸</button>
+      <button class="play-btn" id="togglePlay">⏸️</button>
       <audio id="audio-player" autoplay loop>
-        <source src="https://dl.sndup.net/fq6h/LOVE%20-%20Kendrick%20Lamar%20feat.%20Zacari.mp3" type="audio/mpeg">
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
       </audio>
     </div>
@@ -144,12 +152,29 @@
     <div class="message-content" id="typed-text"></div>
   </div>
 
+  <!-- Confetti library -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
   <script>
-    const targetDate = new Date('2025-06-24T00:00:00');
+    const targetDate = new Date('2025-07-24T00:00:00');
     const countdownEl = document.getElementById('countdown');
     const countdownPage = document.getElementById('countdown-page');
     const messagePage = document.getElementById('message-page');
     const typedTextEl = document.getElementById('typed-text');
+    const audioPlayer = document.getElementById('audio-player');
+    const toggleBtn = document.getElementById('togglePlay');
+
+    let isPlaying = true;
+    toggleBtn.addEventListener('click', () => {
+      if (isPlaying) {
+        audioPlayer.pause();
+        toggleBtn.innerText = '▶️';
+      } else {
+        audioPlayer.play();
+        toggleBtn.innerText = '⏸️';
+      }
+      isPlaying = !isPlaying;
+    });
 
     function updateCountdown() {
       const now = new Date();
@@ -172,16 +197,56 @@
     function showMessage() {
       countdownPage.style.display = 'none';
       messagePage.style.display = 'block';
-      document.getElementById('confetti-canvas').style.display = 'block';
+      messagePage.style.background = '#ffffff';
+      messagePage.style.transition = 'background 10s ease';
+
+      setTimeout(() => {
+        messagePage.style.background = 'linear-gradient(to bottom right, #fff0f0, #ffe5e5)';
+        showFloatingHearts();
+      }, 100);
+
       typeMessage();
-      releaseHearts();
-      document.getElementById("audio-player").play();
-      startConfetti();
+      triggerConfetti();
+      setTimeout(() => {
+        const canvas = document.querySelector("canvas");
+        if (canvas) canvas.remove();
+      }, 3000);
+
+      audioPlayer.play();
     }
 
-    const message = `Happy birthday! 🎂
+    function showFloatingHearts() {
+      setTimeout(() => {
+        const heartInterval = setInterval(() => {
+          const heart = document.createElement('div');
+          heart.classList.add('heart');
+          heart.style.left = Math.random() * 100 + 'vw';
+          heart.style.top = '100vh';
+          document.body.appendChild(heart);
+          setTimeout(() => heart.remove(), 4000);
+        }, 300);
 
-I’ve waited so long to finally tell you all of this... (continue writing your full letter here!)`;
+        setTimeout(() => clearInterval(heartInterval), 20000);
+      }, 10000);
+    }
+
+    function triggerConfetti() {
+      const duration = 3 * 1000;
+      const end = Date.now() + duration;
+
+      (function frame() {
+        confetti({
+          particleCount: 5,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+        if (Date.now() < end) {
+          requestAnimationFrame(frame);
+        }
+      })();
+    }
+
+    const message = `I never thought I’d write this down, let alone say it out loud... (your full message here)`;
 
     let charIndex = 0;
     function typeMessage() {
@@ -192,75 +257,21 @@ I’ve waited so long to finally tell you all of this... (continue writing your 
       }
     }
 
-    function releaseHearts() {
-      setInterval(() => {
-        const heart = document.createElement('div');
-        heart.classList.add('heart');
-        heart.style.left = Math.random() * 100 + 'vw';
-        heart.style.top = '100vh';
-        document.body.appendChild(heart);
-        setTimeout(() => heart.remove(), 4000);
-      }, 300);
-    }
-
     const timer = setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    const toggleBtn = document.getElementById('toggle-music');
-    const audioPlayer = document.getElementById('audio-player');
-
-    toggleBtn.addEventListener('click', () => {
-      if (audioPlayer.paused) {
-        audioPlayer.play();
-        toggleBtn.textContent = '⏸';
-      } else {
-        audioPlayer.pause();
-        toggleBtn.textContent = '▶️';
-      }
-    });
-
-    function startConfetti() {
-      const confettiCanvas = document.getElementById("confetti-canvas");
-      const ctx = confettiCanvas.getContext("2d");
-      confettiCanvas.width = window.innerWidth;
-      confettiCanvas.height = window.innerHeight;
-
-      const confettiParticles = [];
-      function createConfetti() {
-        const colors = ["#fcd5ce", "#f8edeb", "#e8a598", "#ffc8dd", "#ffafcc"];
-        for (let i = 0; i < 100; i++) {
-          confettiParticles.push({
-            x: Math.random() * confettiCanvas.width,
-            y: Math.random() * confettiCanvas.height - confettiCanvas.height,
-            r: Math.random() * 6 + 4,
-            color: colors[Math.floor(Math.random() * colors.length)],
-            speedY: Math.random() * 2 + 1,
-            drift: Math.random() * 2 - 1
-          });
-        }
-      }
-
-      function drawConfetti() {
-        ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-        confettiParticles.forEach((p) => {
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-          ctx.fillStyle = p.color;
-          ctx.fill();
-          p.y += p.speedY;
-          p.x += p.drift;
-
-          if (p.y > confettiCanvas.height) {
-            p.y = -10;
-            p.x = Math.random() * confettiCanvas.width;
-          }
-        });
-        requestAnimationFrame(drawConfetti);
-      }
-
-      createConfetti();
-      drawConfetti();
-    }
+    // Dev test button
+    const testBtn = document.createElement('button');
+    testBtn.innerText = 'See Message (Dev Only)';
+    testBtn.style.position = 'absolute';
+    testBtn.style.bottom = '20px';
+    testBtn.style.right = '20px';
+    testBtn.style.padding = '0.5rem 1rem';
+    testBtn.style.background = '#eee';
+    testBtn.style.border = 'none';
+    testBtn.style.cursor = 'pointer';
+    testBtn.onclick = showMessage;
+    document.body.appendChild(testBtn);
   </script>
 </body>
 </html>
