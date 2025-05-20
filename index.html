@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Countdown Surprise</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -44,8 +44,18 @@
       height: 100vh;
       overflow-y: auto;
       padding: 6rem 1rem 3rem 1rem;
-      background: #ffffff;
-      transition: background 10s ease;
+      z-index: 1;
+    }
+    .fade-background {
+      animation: fadeBg 10s forwards;
+    }
+    @keyframes fadeBg {
+      0% {
+        background: white;
+      }
+      100% {
+        background: linear-gradient(to bottom right, #fff0f0, #ffe5e5);
+      }
     }
     .message-content {
       max-width: 600px;
@@ -87,17 +97,6 @@
       0% { transform: translateY(0) rotate(45deg); opacity: 1; }
       100% { transform: translateY(-200px) rotate(45deg); opacity: 0; }
     }
-    .fade-background {
-      animation: fadeBg 10s forwards;
-    }
-    @keyframes fadeBg {
-      0% {
-        background: white;
-      }
-      100% {
-        background: linear-gradient(to bottom right, #fff0f0, #ffe5e5);
-      }
-    }
     .music-player {
       position: fixed;
       top: 20px;
@@ -132,11 +131,8 @@
       font-size: 0.9rem;
       color: #666;
     }
-    .play-btn {
-      cursor: pointer;
-      background: none;
-      border: none;
-      font-size: 1.2rem;
+    audio {
+      display: none;
     }
   </style>
 </head>
@@ -149,18 +145,16 @@
 
   <div class="message-page" id="message-page">
     <div class="music-player">
-      <img id="cover-img" src="https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228" alt="Song Cover">
+      <img src="https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228" alt="Song Cover">
       <div class="track-info">
         <div class="track-title">Beautiful in White</div>
         <div class="track-artist">Shane Filan</div>
       </div>
-      <button class="play-btn" id="togglePlay">⏸️</button>
       <audio id="audio-player" autoplay loop>
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
       </audio>
     </div>
-
     <div class="message-content" id="typed-text"></div>
   </div>
 
@@ -170,20 +164,6 @@
     const countdownPage = document.getElementById('countdown-page');
     const messagePage = document.getElementById('message-page');
     const typedTextEl = document.getElementById('typed-text');
-    const audioPlayer = document.getElementById('audio-player');
-    const toggleBtn = document.getElementById('togglePlay');
-
-    let isPlaying = true;
-    toggleBtn.addEventListener('click', () => {
-      if (isPlaying) {
-        audioPlayer.pause();
-        toggleBtn.innerText = '▶️';
-      } else {
-        audioPlayer.play();
-        toggleBtn.innerText = '⏸️';
-      }
-      isPlaying = !isPlaying;
-    });
 
     function updateCountdown() {
       const now = new Date();
@@ -210,8 +190,9 @@
 
       typeMessage();
       releaseHearts();
-      audioPlayer.play();
+      document.getElementById("audio-player").play();
 
+      // Confetti for 3 seconds
       const duration = 3 * 1000;
       const end = Date.now() + duration;
       const confettiInterval = setInterval(function () {
@@ -227,22 +208,19 @@
       }, 300);
     }
 
-    function releaseHearts() {
-      setTimeout(() => {
-        const heartInterval = setInterval(() => {
-          const heart = document.createElement('div');
-          heart.classList.add('heart');
-          heart.style.left = Math.random() * 100 + 'vw';
-          heart.style.top = '100vh';
-          document.body.appendChild(heart);
-          setTimeout(() => heart.remove(), 4000);
-        }, 300);
+    const message = `I never thought I’d write this down, let alone say it out loud. But the truth has been sitting heavy on my chest for far too long, and maybe—just maybe—putting it into words will finally set me free.
 
-        setTimeout(() => clearInterval(heartInterval), 20000);
-      }, 10000);
-    }
+I have a confession.
 
-    const message = `I never thought I’d write this down, let alone say it out loud... (your full message here)`;
+I’ve been pretending. Pretending that I’m okay, that everything is fine, that nothing affects me. I laugh at the right times, I nod when I’m supposed to, and I even throw in a joke or two to keep people from asking what’s really going on. But behind that smile is a storm I haven’t dared to share.
+
+The truth is, I’m tired. Not just physically, but emotionally. I carry the weight of expectations, memories, regrets—and worst of all, silence. I’ve pushed people away because I was too scared they’d see through the act. Too scared they’d see the real me. But what scares me more now is the thought of going on like this—unseen, unheard, and misunderstood.
+
+This is not a cry for help. This is not an excuse. This is a confession—a moment of honesty in a world where we’re taught to hide our cracks. So here it is: I’m not perfect. I mess up. I feel lost. I overthink. I care too much sometimes. And yes, I’ve been afraid to admit any of it.
+
+But not anymore.
+
+Maybe this essay won’t change anything. Maybe it’ll just be a piece of paper in someone’s hands, tossed aside after a scene or two. But for me, writing it is a first step. A small crack in the mask. And sometimes, that’s all it takes to let a little light in.`;
 
     let charIndex = 0;
     function typeMessage() {
@@ -253,10 +231,21 @@
       }
     }
 
+    function releaseHearts() {
+      setInterval(() => {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.top = '100vh';
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 4000);
+      }, 300);
+    }
+
     const timer = setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // Dev test button
+    // Dev Button
     const testBtn = document.createElement('button');
     testBtn.innerText = 'See Message (Dev Only)';
     testBtn.style.position = 'absolute';
