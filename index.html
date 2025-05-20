@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Countdown Surprise</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -86,6 +87,17 @@
       0% { transform: translateY(0) rotate(45deg); opacity: 1; }
       100% { transform: translateY(-200px) rotate(45deg); opacity: 0; }
     }
+    .fade-background {
+      animation: fadeBg 10s forwards;
+    }
+    @keyframes fadeBg {
+      0% {
+        background: white;
+      }
+      100% {
+        background: linear-gradient(to bottom right, #fff0f0, #ffe5e5);
+      }
+    }
     .music-player {
       position: fixed;
       top: 20px;
@@ -152,9 +164,6 @@
     <div class="message-content" id="typed-text"></div>
   </div>
 
-  <!-- Confetti library -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
-
   <script>
     const targetDate = new Date('2025-07-24T00:00:00');
     const countdownEl = document.getElementById('countdown');
@@ -197,25 +206,28 @@
     function showMessage() {
       countdownPage.style.display = 'none';
       messagePage.style.display = 'block';
-      messagePage.style.background = '#ffffff';
-      messagePage.style.transition = 'background 10s ease';
-
-      setTimeout(() => {
-        messagePage.style.background = 'linear-gradient(to bottom right, #fff0f0, #ffe5e5)';
-        showFloatingHearts();
-      }, 100);
+      messagePage.classList.add('fade-background');
 
       typeMessage();
-      triggerConfetti();
-      setTimeout(() => {
-        const canvas = document.querySelector("canvas");
-        if (canvas) canvas.remove();
-      }, 3000);
-
+      releaseHearts();
       audioPlayer.play();
+
+      const duration = 3 * 1000;
+      const end = Date.now() + duration;
+      const confettiInterval = setInterval(function () {
+        if (Date.now() > end) {
+          clearInterval(confettiInterval);
+          return;
+        }
+        confetti({
+          particleCount: 50,
+          spread: 90,
+          origin: { y: 0.6 }
+        });
+      }, 300);
     }
 
-    function showFloatingHearts() {
+    function releaseHearts() {
       setTimeout(() => {
         const heartInterval = setInterval(() => {
           const heart = document.createElement('div');
@@ -228,22 +240,6 @@
 
         setTimeout(() => clearInterval(heartInterval), 20000);
       }, 10000);
-    }
-
-    function triggerConfetti() {
-      const duration = 3 * 1000;
-      const end = Date.now() + duration;
-
-      (function frame() {
-        confetti({
-          particleCount: 5,
-          spread: 70,
-          origin: { y: 0.6 }
-        });
-        if (Date.now() < end) {
-          requestAnimationFrame(frame);
-        }
-      })();
     }
 
     const message = `I never thought I’d write this down, let alone say it out loud... (your full message here)`;
