@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Countdown Surprise</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
   <style>
     * {
       margin: 0;
@@ -42,24 +41,13 @@
       left: 0;
       width: 100vw;
       height: 100vh;
+      background: linear-gradient(to bottom right, #fff0f0, #ffe5e5);
       overflow-y: auto;
       padding: 6rem 1rem 3rem 1rem;
-      z-index: 1;
-    }
-    .fade-background {
-      animation: fadeBg 10s forwards;
-    }
-    @keyframes fadeBg {
-      0% {
-        background: white;
-      }
-      100% {
-        background: linear-gradient(to bottom right, #fff0f0, #ffe5e5);
-      }
     }
     .message-content {
       max-width: 600px;
-      margin: 0 auto;
+      margin: 100px auto 0 auto;
       font-size: 1.1rem;
       color: #333;
       line-height: 1.6;
@@ -97,6 +85,7 @@
       0% { transform: translateY(0) rotate(45deg); opacity: 1; }
       100% { transform: translateY(-200px) rotate(45deg); opacity: 0; }
     }
+
     .music-player {
       position: fixed;
       top: 20px;
@@ -134,6 +123,17 @@
     audio {
       display: none;
     }
+
+    canvas#confetti-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 2;
+      display: none;
+    }
   </style>
 </head>
 <body>
@@ -144,17 +144,22 @@
   </div>
 
   <div class="message-page" id="message-page">
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Spotify-style Music Player -->
     <div class="music-player">
       <img src="https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228" alt="Song Cover">
       <div class="track-info">
         <div class="track-title">Beautiful in White</div>
         <div class="track-artist">Shane Filan</div>
       </div>
+      <button id="toggle-music" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">⏸</button>
       <audio id="audio-player" autoplay loop>
         <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
         Your browser does not support the audio element.
       </audio>
     </div>
+
     <div class="message-content" id="typed-text"></div>
   </div>
 
@@ -186,41 +191,29 @@
     function showMessage() {
       countdownPage.style.display = 'none';
       messagePage.style.display = 'block';
-      messagePage.classList.add('fade-background');
-
+      document.getElementById('confetti-canvas').style.display = 'block';
       typeMessage();
       releaseHearts();
       document.getElementById("audio-player").play();
-
-      // Confetti for 3 seconds
-      const duration = 3 * 1000;
-      const end = Date.now() + duration;
-      const confettiInterval = setInterval(function () {
-        if (Date.now() > end) {
-          clearInterval(confettiInterval);
-          return;
-        }
-        confetti({
-          particleCount: 50,
-          spread: 90,
-          origin: { y: 0.6 }
-        });
-      }, 300);
+      startConfetti();
     }
 
-    const message = `I never thought I’d write this down, let alone say it out loud. But the truth has been sitting heavy on my chest for far too long, and maybe—just maybe—putting it into words will finally set me free.
+    const message = `I like you, I like you, I like you
+Sorry, I never meant to
+But who we kidding, it wasn't like I had a say
+One look at you and I won't have it any other way
+I want you, I want you, I want you
+I want you to want me too
+I know that I signed up for this casually
+But I fell for your tricks, now I'm the casualty
 
-I have a confession.
-
-I’ve been pretending. Pretending that I’m okay, that everything is fine, that nothing affects me. I laugh at the right times, I nod when I’m supposed to, and I even throw in a joke or two to keep people from asking what’s really going on. But behind that smile is a storm I haven’t dared to share.
-
-The truth is, I’m tired. Not just physically, but emotionally. I carry the weight of expectations, memories, regrets—and worst of all, silence. I’ve pushed people away because I was too scared they’d see through the act. Too scared they’d see the real me. But what scares me more now is the thought of going on like this—unseen, unheard, and misunderstood.
-
-This is not a cry for help. This is not an excuse. This is a confession—a moment of honesty in a world where we’re taught to hide our cracks. So here it is: I’m not perfect. I mess up. I feel lost. I overthink. I care too much sometimes. And yes, I’ve been afraid to admit any of it.
-
-But not anymore.
-
-Maybe this essay won’t change anything. Maybe it’ll just be a piece of paper in someone’s hands, tossed aside after a scene or two. But for me, writing it is a first step. A small crack in the mask. And sometimes, that’s all it takes to let a little light in.`;
+Can we just reset, restart and then replay
+Take me back to when all
+You wanted was to love on me every day, yeah
+I like you, I like you, I like you
+Words I won't ever hear from you
+Wishin' I could turn back the hands of time
+To when I feel your hands on me and your lips on mine`;
 
     let charIndex = 0;
     function typeMessage() {
@@ -257,6 +250,65 @@ Maybe this essay won’t change anything. Maybe it’ll just be a piece of paper
     testBtn.style.cursor = 'pointer';
     testBtn.onclick = showMessage;
     document.body.appendChild(testBtn);
+
+    // Pause/Play Toggle
+    const toggleBtn = document.getElementById('toggle-music');
+    const audioPlayer = document.getElementById('audio-player');
+
+    toggleBtn.addEventListener('click', () => {
+      if (audioPlayer.paused) {
+        audioPlayer.play();
+        toggleBtn.textContent = '⏸';
+      } else {
+        audioPlayer.pause();
+        toggleBtn.textContent = '▶️';
+      }
+    });
+
+    // Confetti
+    function startConfetti() {
+      const confettiCanvas = document.getElementById("confetti-canvas");
+      const ctx = confettiCanvas.getContext("2d");
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+
+      const confettiParticles = [];
+
+      function createConfetti() {
+        const colors = ["#fcd5ce", "#f8edeb", "#e8a598", "#ffc8dd", "#ffafcc"];
+        for (let i = 0; i < 100; i++) {
+          confettiParticles.push({
+            x: Math.random() * confettiCanvas.width,
+            y: Math.random() * confettiCanvas.height - confettiCanvas.height,
+            r: Math.random() * 6 + 4,
+            color: colors[Math.floor(Math.random() * colors.length)],
+            speedY: Math.random() * 2 + 1,
+            drift: Math.random() * 2 - 1
+          });
+        }
+      }
+
+      function drawConfetti() {
+        ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
+        confettiParticles.forEach((p) => {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.fillStyle = p.color;
+          ctx.fill();
+          p.y += p.speedY;
+          p.x += p.drift;
+
+          if (p.y > confettiCanvas.height) {
+            p.y = -10;
+            p.x = Math.random() * confettiCanvas.width;
+          }
+        });
+        requestAnimationFrame(drawConfetti);
+      }
+
+      createConfetti();
+      drawConfetti();
+    }
   </script>
 </body>
 </html>
