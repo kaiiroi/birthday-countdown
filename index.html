@@ -55,6 +55,37 @@
       position: relative;
       z-index: 10;
     }
+    .heart {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: pink;
+      transform: rotate(45deg);
+      animation: float 4s linear infinite;
+      z-index: 5;
+    }
+    .heart::before,
+    .heart::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: pink;
+      border-radius: 50%;
+    }
+    .heart::before {
+      top: -10px;
+      left: 0;
+    }
+    .heart::after {
+      top: 0;
+      left: -10px;
+    }
+    @keyframes float {
+      0% { transform: translateY(0) rotate(45deg); opacity: 1; }
+      100% { transform: translateY(-200px) rotate(45deg); opacity: 0; }
+    }
+
     .music-player {
       position: fixed;
       top: 20px;
@@ -92,6 +123,7 @@
     audio {
       display: none;
     }
+
     canvas#confetti-canvas {
       position: fixed;
       top: 0;
@@ -105,13 +137,18 @@
   </style>
 </head>
 <body>
+
   <div class="container" id="countdown-page">
     <h2>BIRTHDAY COUNTDOWNN!! 🥳🎉🎊</h2>
     <div class="countdown" id="countdown"></div>
   </div>
+
   <div class="message-page" id="message-page">
+    <canvas id="confetti-canvas"></canvas>
+
+    <!-- Spotify-style Music Player -->
 <div class="music-player">
-  <img src="https://i1.sndcdn.com/artworks-v0q9sU0r0uzn-0-t500x500.jpg" alt="Seasons Album Art">
+  <img src="https://i.scdn.co/image/ab67616d00001e02ff9ca10b55ce82ae553c8228" alt="Song Cover">
   <div class="track-info">
     <div class="track-title">Seasons</div>
     <div class="track-artist">Wave to Earth</div>
@@ -119,15 +156,13 @@
   <button id="toggle-music" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">⏸</button>
   <audio id="audio-player" autoplay loop>
     <source src="/mnt/data/wave to earth - seasons.mp3" type="audio/mpeg">
+    Your browser does not support the audio element.
   </audio>
 </div>
-      <button id="toggle-music" style="background: none; border: none; cursor: pointer; font-size: 1.2rem;">⏸</button>
-      <audio id="audio-player" autoplay loop>
-  <source src="/mnt/data/wave to earth - seasons.mp3" type="audio/mpeg">
-</audio>
-    </div>
+
     <div class="message-content" id="typed-text"></div>
   </div>
+
   <script>
     const targetDate = new Date('2025-07-24T00:00:00');
     const countdownEl = document.getElementById('countdown');
@@ -138,16 +173,19 @@
     function updateCountdown() {
       const now = new Date();
       const diff = targetDate - now;
+
       if (diff <= 0) {
         showMessage();
         clearInterval(timer);
         return;
       }
+
       const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
       const minutes = Math.floor((diff / 1000 / 60) % 60);
       const seconds = Math.floor((diff / 1000) % 60);
-      countdownEl.innerText = `${days}d ${hours}h ${minutes}m ${seconds}s`;
+
+      countdownEl.innerText = ${days}d ${hours}h ${minutes}m ${seconds}s;
     }
 
     function showMessage() {
@@ -155,11 +193,13 @@
       messagePage.style.display = 'block';
       document.getElementById('confetti-canvas').style.display = 'block';
       typeMessage();
-      startConfetti();
+      releaseHearts();
       document.getElementById("audio-player").play();
+      startConfetti();
     }
 
-    const message = `Hello imnida, Happy birthday imnida`;
+    const message = Hello imnida, Happy birthday imnida;
+
     let charIndex = 0;
     function typeMessage() {
       if (charIndex < message.length) {
@@ -169,9 +209,21 @@
       }
     }
 
+    function releaseHearts() {
+      setInterval(() => {
+        const heart = document.createElement('div');
+        heart.classList.add('heart');
+        heart.style.left = Math.random() * 100 + 'vw';
+        heart.style.top = '100vh';
+        document.body.appendChild(heart);
+        setTimeout(() => heart.remove(), 4000);
+      }, 300);
+    }
+
     const timer = setInterval(updateCountdown, 1000);
     updateCountdown();
 
+    // Dev Button
     const testBtn = document.createElement('button');
     testBtn.innerText = 'See Message (Dev Only)';
     testBtn.style.position = 'absolute';
@@ -184,8 +236,10 @@
     testBtn.onclick = showMessage;
     document.body.appendChild(testBtn);
 
+    // Pause/Play Toggle
     const toggleBtn = document.getElementById('toggle-music');
     const audioPlayer = document.getElementById('audio-player');
+
     toggleBtn.addEventListener('click', () => {
       if (audioPlayer.paused) {
         audioPlayer.play();
@@ -196,12 +250,15 @@
       }
     });
 
+    // Confetti
     function startConfetti() {
       const confettiCanvas = document.getElementById("confetti-canvas");
       const ctx = confettiCanvas.getContext("2d");
       confettiCanvas.width = window.innerWidth;
       confettiCanvas.height = window.innerHeight;
+
       const confettiParticles = [];
+
       function createConfetti() {
         const colors = ["#fcd5ce", "#f8edeb", "#e8a598", "#ffc8dd", "#ffafcc"];
         for (let i = 0; i < 100; i++) {
@@ -215,6 +272,7 @@
           });
         }
       }
+
       function drawConfetti() {
         ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
         confettiParticles.forEach((p) => {
@@ -224,6 +282,7 @@
           ctx.fill();
           p.y += p.speedY;
           p.x += p.drift;
+
           if (p.y > confettiCanvas.height) {
             p.y = -10;
             p.x = Math.random() * confettiCanvas.width;
@@ -231,6 +290,7 @@
         });
         requestAnimationFrame(drawConfetti);
       }
+
       createConfetti();
       drawConfetti();
     }
