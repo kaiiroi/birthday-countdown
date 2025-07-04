@@ -11,6 +11,33 @@
       padding: 0;
       box-sizing: border-box;
     }
+    <button id="devPreviewBtn" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  padding: 10px 14px;
+  background: #fce4ec;
+  border: none;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  cursor: pointer;
+  font-size: 14px;
+  z-index: 1000;
+">
+  🔓 View Letter (Dev Only)
+</button>
+
+<script>
+  document.getElementById('devPreviewBtn').addEventListener('click', () => {
+    // Simulate countdown reaching 0
+    const countdownPage = document.getElementById('countdown-page');
+    const messagePage = document.getElementById('message-page');
+    countdownPage.style.display = 'none';
+    messagePage.style.display = 'block';
+    document.getElementById("confetti-canvas").style.display = "block";
+    document.getElementById("audio-player")?.play?.();
+    if (typeof typeMessage === "function") typeMessa
+    
     body {
       font-family: 'Inter', sans-serif;
       background-color: #f9f9f6;
@@ -54,32 +81,6 @@
       white-space: pre-wrap;
       position: relative;
       z-index: 10;
-    }
-    .heart {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background: pink;
-      transform: rotate(45deg);
-      animation: float 4s linear infinite;
-      z-index: 5;
-    }
-    .heart::before,
-    .heart::after {
-      content: "";
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background: pink;
-      border-radius: 50%;
-    }
-    .heart::before {
-      top: -10px;
-      left: 0;
-    }
-    .heart::after {
-      top: 0;
-      left: -10px;
     }
     @keyframes float {
       0% { transform: translateY(0) rotate(45deg); opacity: 1; }
